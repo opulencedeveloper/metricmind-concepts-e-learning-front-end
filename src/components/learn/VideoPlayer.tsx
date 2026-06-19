@@ -72,6 +72,8 @@ const VideoPlayer = memo(({
 
     markedAsWatchedRef.current = true;
 
+    alert('VIDEO ENDED - Marking as watched');
+
     // Send request to backend to mark item as watched
     sendHttpRequest({
       requestConfig: {
@@ -105,10 +107,35 @@ const VideoPlayer = memo(({
         const player = new window.Vimeo.Player(iframeRef.current);
         vimeoPlayerRef.current = player;
 
+        // Track progress and mark as watched at 80% threshold
+        const handleVimeoTimeUpdate = async () => {
+          try {
+            const [current, duration] = await Promise.all([
+              player.getCurrentTime(),
+              player.getDuration(),
+            ]);
+            const progress = (current / duration) * 100;
+
+            // Report progress
+            if (onProgress) {
+              onProgress(progress);
+            }
+
+            // Mark as watched at 80% threshold (industry standard)
+            if (progress >= WATCHED_THRESHOLD) {
+              handleVideoEnded();
+            }
+          } catch (error) {
+            console.error('Error tracking Vimeo progress:', error);
+          }
+        };
+
+        player.on('timeupdate', handleVimeoTimeUpdate);
         player.on('ended', handleVideoEnded);
 
         cleanup = () => {
           if (vimeoPlayerRef.current) {
+            vimeoPlayerRef.current.off('timeupdate', handleVimeoTimeUpdate);
             vimeoPlayerRef.current.off('ended', handleVideoEnded);
             vimeoPlayerRef.current = null;
           }
@@ -141,15 +168,24 @@ const VideoPlayer = memo(({
     };
   }, [isVimeoUrl, vimeoId, handleVideoEnded]);
 
-  // Track video progress and playing state
+  // Track video progress and mark as watched at 80% (industry standard: Udemy/Coursera)
+  const WATCHED_THRESHOLD = 80;
+
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
 
     const handleTimeUpdate = () => {
+      const progress = (video.currentTime / video.duration) * 100;
+
+      // Report progress
       if (onProgress) {
-        const progress = (video.currentTime / video.duration) * 100;
         onProgress(progress);
+      }
+
+      // Mark as watched at 80% threshold (industry standard)
+      if (progress >= WATCHED_THRESHOLD) {
+        handleVideoEnded();
       }
     };
 
