@@ -185,6 +185,14 @@ const VideoPlayer = memo(({
     }
   }, [isPlaying, isTouchDevice]);
 
+  // Extract Vimeo ID from URL
+  const isVimeoUrl = videoUrl?.includes('vimeo.com');
+  const getVimeoId = (url: string) => {
+    const match = url.match(/vimeo\.com\/(\d+)/);
+    return match ? match[1] : null;
+  };
+  const vimeoId = isVimeoUrl ? getVimeoId(videoUrl) : null;
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -200,18 +208,28 @@ const VideoPlayer = memo(({
         onMouseLeave={handleMouseLeave}
         onTouchStart={handleTap}
       >
-        <video
-          ref={videoRef}
-          className="w-full h-full"
-          onClick={togglePlayPause}
-          controlsList="nodownload"
-          poster={undefined}
-        >
-          <source src={videoUrl} type="video/mp4" />
-          <p className="text-white text-center p-8">
-            Your browser doesn't support HTML5 video. Please use a modern browser.
-          </p>
-        </video>
+        {isVimeoUrl && vimeoId ? (
+          <iframe
+            src={`https://player.vimeo.com/video/${vimeoId}`}
+            className="w-full h-full"
+            frameBorder="0"
+            allow="autoplay; fullscreen; picture-in-picture"
+            allowFullScreen
+          />
+        ) : (
+          <video
+            ref={videoRef}
+            className="w-full h-full"
+            onClick={togglePlayPause}
+            controlsList="nodownload"
+            poster={undefined}
+          >
+            <source src={videoUrl} type="video/mp4" />
+            <p className="text-white text-center p-8">
+              Your browser doesn't support HTML5 video. Please use a modern browser.
+            </p>
+          </video>
+        )}
 
         {/* Center Play/Pause Button - Shows when paused */}
         <AnimatePresence>
