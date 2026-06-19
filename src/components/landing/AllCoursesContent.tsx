@@ -51,7 +51,7 @@ export default function AllCoursesContent({
     setTotalCourses(0)
   }, [searchQuery, selectedCategory])
 
-  // Fetch courses when category, search query, or retry changes
+  // Fetch courses only if query params exist or user interacts with filters
   useEffect(() => {
     const isMounted = { current: true }
 
@@ -125,22 +125,29 @@ export default function AllCoursesContent({
       })
     }
 
-    // Skip initial fetch if we have initial courses from server
+    // Skip initial fetch if we have initial courses from server and no query params
     if (isInitialMount.current) {
       isInitialMount.current = false
-      return () => {
-        isMounted.current = false
+      // Only fetch if there are query parameters (search/category/page filters)
+      const hasQueryParams = searchParams.get('search') || searchParams.get('category') || currentPage > 1
+      if (!hasQueryParams && initialCourses.length > 0) {
+        return () => {
+          isMounted.current = false
+        }
       }
     }
 
-    if (currentPage === 1) {
-      fetchCourses(1, false)
+    // Fetch if user searched or filtered
+    if (searchQuery || selectedCategory) {
+      if (currentPage === 1) {
+        fetchCourses(1, false)
+      }
     }
 
     return () => {
       isMounted.current = false
     }
-  }, [selectedCategory, searchQuery, sendHttpRequest, retryTrigger, currentPage, coursesPerPage])
+  }, [selectedCategory, searchQuery, sendHttpRequest, retryTrigger, currentPage, coursesPerPage, searchParams, initialCourses])
 
   const handleLoadMore = async () => {
     setIsLoadingMore(true)
