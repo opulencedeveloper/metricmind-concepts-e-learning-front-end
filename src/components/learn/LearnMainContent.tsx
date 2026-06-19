@@ -39,6 +39,7 @@ const LearnMainContent = memo(({
 
   // Handle video selection from curriculum - with smooth scroll
   const handleSelectVideo = useCallback((videoUrl: string, videoTitle: string, itemId: string) => {
+    console.log('🎥 Video selected:', { videoUrl, videoTitle, itemId });
     setSelectedVideoUrl(videoUrl);
     setSelectedVideoTitle(videoTitle);
     setSelectedItemId(itemId);

@@ -54,6 +54,11 @@ const VideoPlayer = memo(({
   };
   const vimeoId = isVimeoUrl ? getVimeoId(videoUrl) : null;
 
+  // Debug: Log when video URL changes
+  useEffect(() => {
+    console.log('🎬 VideoPlayer received new URL:', { videoUrl, isVimeoUrl, vimeoId, lectureTitle });
+  }, [videoUrl, isVimeoUrl, vimeoId, lectureTitle]);
+
   // Detect touch device on mount
   useEffect(() => {
     const isTouchScreen = () => {
