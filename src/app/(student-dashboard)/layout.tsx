@@ -36,7 +36,7 @@ export default function StudentCoursesLayout({ children }: { children: React.Rea
       <StudentHeader />
       <main className="max-w-7xl pt-5 mx-auto px-4 sm:px-6 lg:px-8">
         {children}
-      </main>
+      </main>. 
     </div>
   );
 }
