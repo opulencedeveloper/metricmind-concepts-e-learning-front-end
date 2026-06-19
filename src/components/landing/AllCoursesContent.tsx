@@ -210,14 +210,14 @@ export default function AllCoursesContent({
 
       {/* Search Bar - Sticky */}
       <div className="sticky top-16 z-30 bg-white border-b border-gray-200 shadow-sm">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
           <SearchBar onSearchChange={setSearchQuery} placeholder="Search courses, skills, topics..." />
         </div>
       </div>
 
       {/* Category Filter - Sticky below SearchBar */}
-      <div className="sticky top-32 z-20 bg-white border-b border-gray-100">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+      <div className="sticky top-28 z-20 bg-white border-b border-gray-100">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-2">
           <CategoryFilter
             categories={categories}
             selectedCategory={selectedCategory}
