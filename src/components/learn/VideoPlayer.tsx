@@ -46,6 +46,14 @@ const VideoPlayer = memo(({
   const hideControlsTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const { sendHttpRequest } = useHttp();
 
+  // Extract Vimeo ID from URL
+  const isVimeoUrl = videoUrl?.includes('vimeo.com');
+  const getVimeoId = (url: string) => {
+    const match = url.match(/vimeo\.com\/(\d+)/);
+    return match ? match[1] : null;
+  };
+  const vimeoId = isVimeoUrl ? getVimeoId(videoUrl) : null;
+
   // Detect touch device on mount
   useEffect(() => {
     const isTouchScreen = () => {
@@ -88,26 +96,7 @@ const VideoPlayer = memo(({
   useEffect(() => {
     if (!isVimeoUrl || !vimeoId || typeof window === 'undefined') return;
 
-    const initVimeoPlayer = async () => {
-      // Load Vimeo SDK if not already present
-      if (!window.Vimeo) {
-        const script = document.createElement('script');
-        script.src = 'https://player.vimeo.com/api/player.js';
-        script.async = true;
-
-        script.onload = () => {
-          setupPlayer();
-        };
-
-        script.onerror = () => {
-          console.error('Failed to load Vimeo SDK');
-        };
-
-        document.body.appendChild(script);
-      } else {
-        setupPlayer();
-      }
-    };
+    let cleanup: (() => void) | null = null;
 
     const setupPlayer = () => {
       if (!iframeRef.current || !window.Vimeo) return;
@@ -116,11 +105,9 @@ const VideoPlayer = memo(({
         const player = new window.Vimeo.Player(iframeRef.current);
         vimeoPlayerRef.current = player;
 
-        // Attach handleVideoEnded to Vimeo player
         player.on('ended', handleVideoEnded);
 
-        // Cleanup function
-        return () => {
+        cleanup = () => {
           if (vimeoPlayerRef.current) {
             vimeoPlayerRef.current.off('ended', handleVideoEnded);
             vimeoPlayerRef.current = null;
@@ -131,7 +118,24 @@ const VideoPlayer = memo(({
       }
     };
 
-    const cleanup = initVimeoPlayer();
+    if (!window.Vimeo) {
+      const script = document.createElement('script');
+      script.src = 'https://player.vimeo.com/api/player.js';
+      script.async = true;
+
+      script.onload = () => {
+        setupPlayer();
+      };
+
+      script.onerror = () => {
+        console.error('Failed to load Vimeo SDK');
+      };
+
+      document.body.appendChild(script);
+    } else {
+      setupPlayer();
+    }
+
     return () => {
       if (cleanup) cleanup();
     };
@@ -248,14 +252,6 @@ const VideoPlayer = memo(({
       }, 3000);
     }
   }, [isPlaying, isTouchDevice]);
-
-  // Extract Vimeo ID from URL
-  const isVimeoUrl = videoUrl?.includes('vimeo.com');
-  const getVimeoId = (url: string) => {
-    const match = url.match(/vimeo\.com\/(\d+)/);
-    return match ? match[1] : null;
-  };
-  const vimeoId = isVimeoUrl ? getVimeoId(videoUrl) : null;
 
   return (
     <motion.div
