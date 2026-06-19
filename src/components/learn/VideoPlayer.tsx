@@ -58,6 +58,32 @@ const VideoPlayer = memo(({
     setIsTouchDevice(isTouchScreen());
   }, []);
 
+  // Handle video ended - mark as watched
+  const handleVideoEnded = useCallback(() => {
+    if (markedAsWatchedRef.current) return;
+
+    markedAsWatchedRef.current = true;
+
+    // Send request to backend to mark item as watched
+    sendHttpRequest({
+      requestConfig: {
+        method: HttpMethod.POST,
+        url: `/student/courses/${courseId}/curriculum-items/${curriculumItemId}/mark-watched`,
+        isAuth: true,
+      },
+      successRes: () => {
+        // Trigger callback if provided
+        if (onVideoEnded) {
+          onVideoEnded();
+        }
+      },
+      errorRes: (err: any) => {
+        // Silently fail - don't disrupt user experience
+        console.error('Failed to mark video as watched:', err);
+      },
+    });
+  }, [courseId, curriculumItemId, sendHttpRequest, onVideoEnded]);
+
   // Initialize Vimeo Player and listen to events
   useEffect(() => {
     if (!isVimeoUrl || !vimeoId || typeof window === 'undefined') return;
@@ -110,32 +136,6 @@ const VideoPlayer = memo(({
       if (cleanup) cleanup();
     };
   }, [isVimeoUrl, vimeoId, handleVideoEnded]);
-
-  // Handle video ended - mark as watched
-  const handleVideoEnded = useCallback(() => {
-    if (markedAsWatchedRef.current) return;
-
-    markedAsWatchedRef.current = true;
-
-    // Send request to backend to mark item as watched
-    sendHttpRequest({
-      requestConfig: {
-        method: HttpMethod.POST,
-        url: `/student/courses/${courseId}/curriculum-items/${curriculumItemId}/mark-watched`,
-        isAuth: true,
-      },
-      successRes: () => {
-        // Trigger callback if provided
-        if (onVideoEnded) {
-          onVideoEnded();
-        }
-      },
-      errorRes: (err: any) => {
-        // Silently fail - don't disrupt user experience
-        console.error('Failed to mark video as watched:', err);
-      },
-    });
-  }, [courseId, curriculumItemId, sendHttpRequest, onVideoEnded]);
 
   // Track video progress and playing state
   useEffect(() => {
