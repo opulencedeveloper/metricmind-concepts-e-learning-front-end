@@ -77,9 +77,15 @@ const VideoPlayer = memo(({
 
     markedAsWatchedRef.current = true;
 
+    // Optimistic UI: Update progress immediately before API call
+    if (videoRef.current && onProgress) {
+      const progress = (videoRef.current.currentTime / videoRef.current.duration) * 100;
+      onProgress(Math.min(progress, 100));
+    }
+
     console.log('✅ Video watched - Marking item as watched:', { courseId, curriculumItemId });
 
-    // Send request to backend to mark item as watched
+    // Send request to backend to mark item as watched (background, fire and forget)
     sendHttpRequest({
       requestConfig: {
         method: HttpMethod.POST,
@@ -97,7 +103,7 @@ const VideoPlayer = memo(({
         console.error('Failed to mark video as watched:', err);
       },
     });
-  }, [courseId, curriculumItemId, sendHttpRequest, onVideoEnded]);
+  }, [courseId, curriculumItemId, sendHttpRequest, onVideoEnded, onProgress]);
 
   // Initialize Vimeo Player and listen to events
   useEffect(() => {
