@@ -5,7 +5,6 @@ import { motion, AnimatePresence } from 'framer-motion'
 import Link from 'next/link'
 import { ArrowRight, ArrowLeft } from 'lucide-react'
 import { heroSlides } from './constants/heroSlides'
-import TrustIndicators from './TrustIndicators'
 
 export default function HeroSection() {
   const [currentSlide, setCurrentSlide] = useState(0)
@@ -160,8 +159,6 @@ export default function HeroSection() {
           ))}
         </div>
       </div>
-
-      <TrustIndicators />
     </div>
   )
 }
