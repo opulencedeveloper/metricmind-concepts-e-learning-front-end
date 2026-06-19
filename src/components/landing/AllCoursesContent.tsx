@@ -208,18 +208,26 @@ export default function AllCoursesContent({
         </div>
       </motion.div>
 
-      {/* Search Bar */}
-      <SearchBar onSearchChange={setSearchQuery} placeholder="Search courses, skills, topics..." />
+      {/* Search Bar - Sticky */}
+      <div className="sticky top-16 z-30 bg-white border-b border-gray-200 shadow-sm">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <SearchBar onSearchChange={setSearchQuery} placeholder="Search courses, skills, topics..." />
+        </div>
+      </div>
 
-      {/* Category Filter - Smart filtering with search integration */}
-      <CategoryFilter
-        categories={categories}
-        selectedCategory={selectedCategory}
-        onCategoryChange={(category) => {
-          console.log('📂 Category selected:', category)
-          setSelectedCategory(category)
-        }}
-      />
+      {/* Category Filter - Sticky below SearchBar */}
+      <div className="sticky top-32 z-20 bg-white border-b border-gray-100">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+          <CategoryFilter
+            categories={categories}
+            selectedCategory={selectedCategory}
+            onCategoryChange={(category) => {
+              console.log('📂 Category selected:', category)
+              setSelectedCategory(category)
+            }}
+          />
+        </div>
+      </div>
 
       {/* Courses Grid - Main Content */}
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
