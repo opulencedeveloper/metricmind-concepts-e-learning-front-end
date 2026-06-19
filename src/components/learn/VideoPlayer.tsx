@@ -6,6 +6,15 @@ import { Play, Pause, Maximize2, Minimize2 } from 'lucide-react';
 import { useHttp } from '@/hooks/useHttp';
 import { HttpMethod } from '@/types/http';
 
+// Vimeo Player SDK type
+declare global {
+  interface Window {
+    Vimeo?: {
+      Player: new (element: HTMLIFrameElement | string, options?: any) => any;
+    };
+  }
+}
+
 interface VideoPlayerProps {
   videoUrl: string;
   courseTitle: string;
@@ -26,6 +35,8 @@ const VideoPlayer = memo(({
   onVideoEnded,
 }: VideoPlayerProps) => {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const iframeRef = useRef<HTMLIFrameElement>(null);
+  const vimeoPlayerRef = useRef<any>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const markedAsWatchedRef = useRef(false);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -46,6 +57,59 @@ const VideoPlayer = memo(({
 
     setIsTouchDevice(isTouchScreen());
   }, []);
+
+  // Initialize Vimeo Player and listen to events
+  useEffect(() => {
+    if (!isVimeoUrl || !vimeoId || typeof window === 'undefined') return;
+
+    const initVimeoPlayer = async () => {
+      // Load Vimeo SDK if not already present
+      if (!window.Vimeo) {
+        const script = document.createElement('script');
+        script.src = 'https://player.vimeo.com/api/player.js';
+        script.async = true;
+
+        script.onload = () => {
+          setupPlayer();
+        };
+
+        script.onerror = () => {
+          console.error('Failed to load Vimeo SDK');
+        };
+
+        document.body.appendChild(script);
+      } else {
+        setupPlayer();
+      }
+    };
+
+    const setupPlayer = () => {
+      if (!iframeRef.current || !window.Vimeo) return;
+
+      try {
+        const player = new window.Vimeo.Player(iframeRef.current);
+        vimeoPlayerRef.current = player;
+
+        // Attach handleVideoEnded to Vimeo player
+        player.on('ended', handleVideoEnded);
+
+        // Cleanup function
+        return () => {
+          if (vimeoPlayerRef.current) {
+            vimeoPlayerRef.current.off('ended', handleVideoEnded);
+            vimeoPlayerRef.current = null;
+          }
+        };
+      } catch (error) {
+        console.error('Failed to initialize Vimeo player:', error);
+      }
+    };
+
+    const cleanup = initVimeoPlayer();
+    return () => {
+      if (cleanup) cleanup();
+    };
+  }, [isVimeoUrl, vimeoId, handleVideoEnded]);
 
   // Handle video ended - mark as watched
   const handleVideoEnded = useCallback(() => {
@@ -210,6 +274,7 @@ const VideoPlayer = memo(({
       >
         {isVimeoUrl && vimeoId ? (
           <iframe
+            ref={iframeRef}
             src={`https://player.vimeo.com/video/${vimeoId}`}
             className="w-full h-full border-0"
             allow="autoplay; fullscreen; picture-in-picture"
