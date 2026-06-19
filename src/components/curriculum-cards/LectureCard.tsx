@@ -12,7 +12,8 @@ const LectureCard = memo(({
   isWatched,
   onSelect,
   isLastItem,
-}: LectureCardProps) => {
+  isActive = false,
+}: LectureCardProps & { isActive?: boolean }) => {
   const minutes = Math.floor(videoDuration / 60);
   const seconds = videoDuration % 60;
 
@@ -22,7 +23,11 @@ const LectureCard = memo(({
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.2 }}
-      className={`w-full text-left py-3 px-4 ${!isLastItem ? 'border-b border-gray-100' : ''} hover:bg-gray-50 active:bg-gray-100 transition-colors duration-150 group cursor-pointer`}
+      className={`w-full text-left py-3 px-4 ${!isLastItem ? 'border-b border-gray-100' : ''} transition-colors duration-150 group cursor-pointer rounded-lg ${
+        isActive
+          ? 'bg-blue-50 border-blue-200 border-l-4 border-l-blue-500'
+          : 'hover:bg-gray-50 active:bg-gray-100'
+      }`}
     >
       <div className="flex items-start gap-3">
         {/* Icon - Large and prominent like Apple */}

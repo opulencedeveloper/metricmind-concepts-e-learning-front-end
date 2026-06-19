@@ -18,7 +18,8 @@ const CourseContent = memo(({
   onSelectVideo,
   watchedItems,
   courseId,
-}: CourseContentProps) => {
+  selectedItemId,
+}: CourseContentProps & { selectedItemId?: string }) => {
   const router = useRouter();
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -153,6 +154,7 @@ const CourseContent = memo(({
                         <CurriculumCard
                           {...(item as any)}
                           isWatched={watchedItems.includes(item._id)}
+                          isActive={item._id === selectedItemId}
                           onSelect={() => {
                             if (item.type === CurriculumItemType.Lecture && 'videoUrl' in item) {
                               onSelectVideo((item as any).videoUrl, item.title, item._id);

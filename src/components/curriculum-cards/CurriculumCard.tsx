@@ -7,7 +7,7 @@ import LectureCard from './LectureCard';
 import QuizCard from './QuizCard';
 import ArticleCard from './ArticleCard';
 
-const CurriculumCard = memo((props: CurriculumCardProps) => {
+const CurriculumCard = memo((props: CurriculumCardProps & { isActive?: boolean }) => {
   switch (props.type) {
     case CurriculumItemType.Lecture:
       return <LectureCard {...(props as any)} />;

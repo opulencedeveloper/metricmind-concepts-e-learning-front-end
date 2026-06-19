@@ -117,6 +117,7 @@ const LearnMainContent = memo(({
           onSelectVideo={handleSelectVideo}
           watchedItems={courseContent.enrollment.watchedItems}
           courseId={courseId}
+          selectedItemId={selectedItemId}
         />
       </div>
 
