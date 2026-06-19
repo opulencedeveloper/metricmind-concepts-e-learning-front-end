@@ -122,7 +122,7 @@ export default function Header() {
               <div className="flex items-center gap-2">
                 <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="shrink-0">
                   <Link
-                    href="/signup"
+                    href="/auth/signup"
                     className="flex items-center px-2.5 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-medium text-gray-900 bg-transparent border border-gray-300 hover:bg-gray-50 rounded-lg transition-all duration-200 whitespace-nowrap box-border"
                   >
                     Sign Up
